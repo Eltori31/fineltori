@@ -4,6 +4,29 @@ import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   try {
+    // Check required environment variables
+    if (!process.env.POWENS_CLIENT_ID || !process.env.POWENS_CLIENT_SECRET) {
+      console.error('Missing Powens credentials')
+      return NextResponse.json(
+        { 
+          error: 'Configuration manquante',
+          details: 'Les identifiants Powens ne sont pas configurés'
+        },
+        { status: 500 }
+      )
+    }
+
+    if (!process.env.NEXT_PUBLIC_APP_URL) {
+      console.error('Missing NEXT_PUBLIC_APP_URL')
+      return NextResponse.json(
+        { 
+          error: 'Configuration manquante',
+          details: 'NEXT_PUBLIC_APP_URL n\'est pas défini'
+        },
+        { status: 500 }
+      )
+    }
+
     const supabase = await createClient()
 
     const {
@@ -16,10 +39,25 @@ export async function POST(request: Request) {
     }
 
     // Create Powens user and get permanent token
-    const powensUser = await powensClient.createUserAndToken()
+    let powensUser
+    try {
+      powensUser = await powensClient.createUserAndToken()
+    } catch (error) {
+      console.error('Error creating Powens user:', error)
+      return NextResponse.json(
+        {
+          error: 'Erreur lors de la création de l\'utilisateur Powens',
+          details: error instanceof Error ? error.message : 'Erreur inconnue',
+        },
+        { status: 500 }
+      )
+    }
 
     if (!powensUser.auth_token || !powensUser.id_user) {
-      throw new Error('Failed to create Powens user')
+      return NextResponse.json(
+        { error: 'Échec de la création de l\'utilisateur Powens' },
+        { status: 500 }
+      )
     }
 
     // Get webview URL

@@ -29,10 +29,18 @@ export function ConnectBankButton({
         headers: { 'Content-Type': 'application/json' },
       })
 
+      if (!response.ok) {
+        const data = await response.json()
+        const errorMessage = data.details 
+          ? `${data.error}: ${data.details}`
+          : data.error || 'Erreur lors de la connexion'
+        throw new Error(errorMessage)
+      }
+
       const data = await response.json()
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Erreur lors de la connexion')
+      if (!data.url) {
+        throw new Error('URL de connexion non reçue')
       }
 
       // Open Powens widget in a new window
