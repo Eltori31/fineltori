@@ -116,24 +116,17 @@ fineltori/
 - ✅ Évolution du patrimoine dans le temps
 - ✅ Liste des comptes et transactions
 
-## Déploiement sur Vercel
+## Déploiement
 
-### 1. Préparer la production
+### Via Vercel (recommandé)
 
-- Créer un projet Supabase production
-- Configurer les variables d'environnement sur Vercel
-- Configurer les credentials Powens production
+1. Connecter votre dépôt GitHub à Vercel via [vercel.com](https://vercel.com)
+2. Configurer les variables d'environnement dans les paramètres du projet Vercel
+3. Vercel déploiera automatiquement à chaque push sur la branche principale
 
-### 2. Déployer
+### Configuration post-déploiement
 
-```bash
-npm i -g vercel
-vercel --prod
-```
-
-### 3. Configuration post-déploiement
-
-- Mettre à jour les URL de redirection dans Supabase
+- Mettre à jour les URL de redirection dans Supabase avec votre URL de production
 - Configurer le webhook Powens avec votre URL de production
 - Tester le flow complet d'authentification et de connexion bancaire
 

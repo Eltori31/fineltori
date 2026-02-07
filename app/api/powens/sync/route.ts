@@ -24,10 +24,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // Verify connection belongs to user
+    // Verify connection belongs to user and get auth token
     const { data: connection } = await supabase
       .from('bank_connections')
-      .select('powens_connection_id')
+      .select('powens_connection_id, error_message')
       .eq('id', connectionId)
       .eq('user_id', user.id)
       .single()
@@ -39,8 +39,18 @@ export async function POST(request: Request) {
       )
     }
 
+    // Get auth token from error_message (temporary storage)
+    // TODO: Use proper powens_auth_token column
+    const authToken = connection.error_message
+    if (!authToken) {
+      return NextResponse.json(
+        { error: 'Token d\'authentification Powens non trouvé' },
+        { status: 400 }
+      )
+    }
+
     // Trigger synchronization
-    const result = await syncConnection(connection.powens_connection_id)
+    const result = await syncConnection(connection.powens_connection_id, authToken)
 
     return NextResponse.json({
       success: true,

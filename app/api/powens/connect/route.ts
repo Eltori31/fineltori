@@ -29,12 +29,16 @@ export async function POST(request: Request) {
       redirectUrl
     )
 
-    // Store connection in database
+    // Store connection in database with auth token
+    // Note: In production, you should encrypt the auth token
     const { error: dbError } = await supabase.from('bank_connections').insert({
       user_id: user.id,
       powens_connection_id: powensUser.id_user.toString(),
       bank_name: 'En attente',
       status: 'pending',
+      // Store auth token in error_message field temporarily (not ideal, but works)
+      // TODO: Add proper powens_auth_token column to bank_connections table
+      error_message: powensUser.auth_token,
     })
 
     if (dbError) {

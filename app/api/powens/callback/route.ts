@@ -32,6 +32,17 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Get connection to retrieve auth token
+    const { data: connection } = await supabase
+      .from('bank_connections')
+      .select('error_message')
+      .eq('powens_connection_id', connectionId)
+      .single()
+
+    if (!connection || !connection.error_message) {
+      throw new Error('Auth token not found for connection')
+    }
+
     // Update connection status to active
     await supabase
       .from('bank_connections')
@@ -39,7 +50,7 @@ export async function GET(request: NextRequest) {
       .eq('powens_connection_id', connectionId)
 
     // Trigger initial sync in the background
-    syncConnection(connectionId).catch((error) => {
+    syncConnection(connectionId, connection.error_message).catch((error) => {
       console.error('Background sync error:', error)
     })
 

@@ -20,8 +20,10 @@ function mapAccountType(powensType: string): string {
 
 /**
  * Synchronize a Powens connection with Supabase
+ * @param connectionId - The Powens connection ID (userId in Powens)
+ * @param authToken - The Powens auth token (required for API calls)
  */
-export async function syncConnection(connectionId: string) {
+export async function syncConnection(connectionId: string, authToken: string) {
   const supabase = createAdminClient()
 
   // Get connection from database
@@ -46,7 +48,11 @@ export async function syncConnection(connectionId: string) {
 
   try {
     // Fetch accounts from Powens
-    const powensAccounts: PowernsAccount[] = await powensClient.getAccounts(connectionId)
+    // connectionId is the powens_connection_id which is the userId in Powens
+    const powensAccounts: PowernsAccount[] = await powensClient.getAccounts(
+      authToken,
+      connectionId
+    )
 
     // Update connection status
     await supabase
@@ -114,6 +120,7 @@ export async function syncConnection(connectionId: string) {
           minDate.setDate(minDate.getDate() - 90)
 
           const powensTransactions: PowernsTransaction[] = await powensClient.getTransactions(
+            authToken,
             connectionId,
             powensAccount.id,
             {
