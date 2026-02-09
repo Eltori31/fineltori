@@ -67,6 +67,9 @@ export async function POST(request: Request) {
       redirectUrl
     )
 
+    console.log('🔗 Powens webview URL:', webviewUrl)
+    console.log('🔙 Redirect URL:', redirectUrl)
+
     // Store connection in database with auth token
     // Note: In production, you should encrypt the auth token
     const { error: dbError } = await supabase.from('bank_connections').insert({
